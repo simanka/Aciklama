@@ -1,0 +1,105 @@
+using UnityEngine;
+using System.Collections;
+
+public class Degisken : MonoBehaviour
+{
+    #region DegiskenlerTanimlaniyor
+    //Bu bölümde oyundaki degiskenler tanımlanır.
+    private int KursunSayisi;//Silahın herhangi bir zamandaki kurşun sayısı.
+    //private: Bir access modifieridir, bu değişken dışardan erişimlere kapalıdır.
+    //int: Tam sayı değişken türüdür.
+    //KursunSayisi: Değişkenin adıdır.
+    private const int KursunMax=30;//Kurşun sayısının çıkabileceği maksimum değerdir.
+    //const: Bir değişkeni sabit değişkene çeviriren modifierdir, bunu kullandığınızda değişken kod içinden veya dışından değiştirilemez.
+    private int DoldurmaSuresi;//Silah doldurulurken geçen süre.
+    private float YaziBekle;//Yazinin ne kadar süre aynı şekilde kalacağını gösteren değişken.
+    //float: Ondalıklı sayı değişken türü.
+    private bool Dolduruluyormu;//Silahın doldurulup dodurulmadığını sorgulayan değişken.
+    //bool: true veya false değerleri alabilen bir değişkendir.
+    private bool YaziBekliyormu;//Yazının bekleyip beklemediğini sorgulayan değişken.
+    public GUIText KursunGostergesi;//Unity3D içerisinde bulunan bir Component, ekrana yazı yazmak için kullanılır.
+    #endregion DegiskenlerTanimlaniyor
+    #region Baslangic
+    //Bu bölüm oyunun ilk karesinde neler olacağını belirtir.
+    void Start()
+        //...(...): Parantez içine parametreler yazılır.
+        //...{...}: Süslü parantezin içinde hesaplamalar yapılır.
+        //void: Hesaplamaların yapıldığı alanlardır, aynı zamanda parametrelere göre de return kullanmamızada gerek yoktur.
+    {
+        KursunSayisi = KursunMax;//Başlangıçta kurşun sayımız, Maksimum kurşun sayısına eşitleniyor.
+        Dolduruluyormu = false;//Silahın doldurulmadığını belirtiyoruz.
+        YaziBekle = 2.0f;//Yazının ne kadar bekleyeceğini beirtiyoruz.
+        //float değişkenler "2" yerine "2.0f" şeklinde tanımlanır.
+    }
+    #endregion Baslangic
+
+    #region Doldurma
+    //Bu bölüm Dodurma süresini hesaplar.
+    IEnumerator KursunDoldur(float Zaman, float YaziyiBekle)//Bizim girdiğimiz Zaman ve YaziyiBekle değişkenlerinine göre yanıt vermesini sağlıyoruz.
+    //IEnumerator: parametrelere göre kodun hesaplamalar için beklemsini sağlayan fonksiyon.
+    {
+
+        Dolduruluyormu = true;//Silahın doldurulduğunu belirtiyoruz.
+        yield return new WaitForSeconds(Zaman);//Fonksiyonun zaman değişkeni kadar beklemesini sağlıyoruz.
+        //yield: fonksiyonun bekelemesini söyleyen anahtardır.
+        //return: parametrelere göre fonksiyonun değerini belirleyen anahtardır.
+        //new: Bir değişeni başka bir değişkene değilde yeni bir değere eşitlerseniz kullanıcak anahtardır.
+        //WaitForSeconds(...): Parantezin içine yazılan float değerini saniye cinsinden beklememizi sağlar.
+        KursunSayisi = KursunMax;//Beklemeden sonra kurşun sayımız, Maksimum kurşun sayısına eşitleniyor.
+        YaziBekliyormu = true;//Yazı beklemeye geçiyor.
+        Dolduruluyormu = false;//Doldurma işleminin bittiğini belirtiyoruz.
+        yield return new WaitForSeconds(YaziyiBekle);//Yazının ne kadar bekleyeceğini belirtiyoruz.
+        YaziBekliyormu = false;//Yazının beklemesini bitiriyoruz.
+    }
+    #endregion Doldurma
+    #region Surekli
+    //Bu bölümde oyunda sürekli çalışacak olan kodları tanımlıyoruz.
+    void Update () {
+        if (KursunSayisi > KursunMax)// Kurşun sayısı bir şekilde maksimum değeri aşarsa diye yapılmış bir önlem oluşturuyoruz. Genelde bu tutup hileleri önlemek için kullanılır.
+            //if: Eğer manasındadır, parantez içerisindeki koşul sağalanırsa şartımıza ayit olan süslü parantezin içindeki kodlar çalıştırılır. Buradaki örnekte ise süslü parantez kullanılmamıştır. Tek hesaplama yapılacaksa süslü paranteze gerek yoktur.
+            KursunSayisi = KursunMax;// Önlem olarak kurşun sayısı, maksimum kurşun sayısına eşitleniyor.
+        if (KursunSayisi > 0)//Kurşun sayısı sıfırdan büyükse, silahı doldurma süremiz üçe eşitleniyor.
+            DoldurmaSuresi = 3;
+        else DoldurmaSuresi = 5;//Kurşun sayısı sıfırdan büyük değilse, silahı doldurma süremiz beşe eşitleniyor.
+        // else: Yazdığınız bir veya birden fazla if deyimi hiçbir koşul sağlamazsa else deyiminin içindeki kodlar çalıştırılır.İstediğiniz koşulun dışında kalan diğer tüm koşulların bir önemi yoksa else deyimini yazmayın.
+        if (!Dolduruluyormu)//Silahın doldurulup doldurulmadığını sorguluyoruz.Koşulumuz ise; "doldurulmuyorsa".
+            //! bir boolean değişkenin false değer aldığını gösterir.
+        {
+            if (Input.GetButton("Fire1"))//Koşul:"Unity3D Input kısmına tanımlanan "Fire1" adlı butona basıldığı sürece".
+                //Input: Tuşların yanıt verdiği sistem.
+                //GetButton: Parantez içine yazılan butona süreki basıldığını söyleyen boolean.
+            {
+                if (KursunSayisi > 0)//Koşul:"Fire1 butonuna basıldığında kurşun sayısı sıfırdan büyükse".Buradaki if, Fire1 butonu etkileyen if deyimine ayit olan süslü parantezin içine yazılmıştır.
+                    KursunSayisi--;//Kurşun sayısını bir azalt;
+                    //KursunSayisi-- şu işleme eşittir KursunSayisi=KursunSayisi-1; İkinci tanım kurşun sayısını, kurşun sayısından bir eksik sayıya eşitler.
+                else StartCoroutine(KursunDoldur((float)DoldurmaSuresi, YaziBekle));//Koşul:"Fire1 butonuna basıldığında kurşun sayısı sıfırdan büyük değilse".
+                //StartCroutine:KursunDoldur adlı bekleme fonksiyonun çağırır.Zaman değişekeninin değerini DodurmaSuresine,YaziyiBekle değişkenini ise YaziyiBekleye eşitler.
+                //(float): int olan bir değikeni"DoldurmaDuresi" floata çevirir.normalde float değerleri int değerlerine eşitleyemezsiniz.
+
+            }
+            if (Input.GetKeyDown(KeyCode.R) && KursunSayisi != KursunMax)//Koşul:"R tuşuna basıldığında ve kurşun maksimum sayıda değilse".
+                //GetKeyDown: Parantezin içine yazılan tuşa basıldığında true değer veren boolean.
+                //KeyCode: Tuşları çağran kod, KeyCode.R: R tuşu.
+                //&&: if deyiminine başka kodlar ekleyen operatör.&& ve operatörüdür deyimin tüm koşulları sağladığında süslü parantez içindeki kodlar çalışır.|| veya operatörü koşullardan biri sağlandığında kodları çalıştırır.
+                StartCoroutine(KursunDoldur((float)DoldurmaSuresi, YaziBekle));//Yukardakinin aynısı.
+        }
+        else//Silah dolduruluyorsa
+        {
+            KursunGostergesi.color = Color.red;//Göstergenin rengini kırmızıya çevirir.
+            KursunGostergesi.text = " Dolduruluyor...";//Göstergeye Dolduruluyor... yazdırır.
+        }
+        if (!Dolduruluyormu && YaziBekliyormu)//Silah doldurulmuyor ve yazı bekliyorsa
+        {
+            KursunGostergesi.color = Color.green;//Göstergeyi yeşil yap.
+            KursunGostergesi.text = KursunSayisi.ToString() + " Dolduruldu!";//Göstergeye ne kadar kurşun oduğunu ve Dolduruldu! yaz.
+            //_.ToString(): bir değişkeni stringe çevirir.
+            //string: yazılar.
+        }
+        else if(!Dolduruluyormu && !YaziBekliyormu)//Silah dodurulmuyorsa ve yazı beklemiyorsa
+        {
+            KursunGostergesi.color = Color.white;//Göstergeyi yeşil yap.
+            KursunGostergesi.text = KursunSayisi.ToString();//Göstergeye ne kadar kurşun olduğunu yaz.
+        }
+    }
+    #endregion Surekli
+}
